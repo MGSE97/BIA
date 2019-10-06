@@ -4,8 +4,8 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
 from Algorithms import BlindSearch
-from Functions import DeSong, Ackleyr, Griewank, Rosenbrock, Rastrigin, Schwefel, Zakharov, Michalewicz, Levy
-from Utils import FullFunction, GraphData, Plot
+from Functions import DeSong, Ackleyr, Griewank, Rosenbrock, Rastrigin, Schwefel, Zakharov, Michalewicz, Levy, Cos
+from Utils import Plot
 
 functions = [
     DeSong(),
@@ -16,7 +16,8 @@ functions = [
     Schwefel(),
     Zakharov().SetRange(-10, 10),
     Michalewicz().SetRange(0, 4),
-    Levy().SetRange(-10, 10)
+    Levy().SetRange(-10, 10),
+    Cos()
 ]
 
 for i, f in enumerate(functions):

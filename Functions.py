@@ -145,4 +145,14 @@ class Levy(BaseFunction):
         )
 
     def Wi(self, x):
-        return 1 + (x -1) / 4
+        return 1 + (x - 1) / 4
+
+
+class Cos(BaseFunction):
+
+    def __init__(self):
+        self.Range = [-2 * np.pi, 2 * np.pi]
+
+    def Value(s, x):
+        return sum([np.cos(x) for x in x])
+
