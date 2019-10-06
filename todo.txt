@@ -1,0 +1,11 @@
+https://www.sfu.ca/~ssurjano/optimization.html
+
+Ackley
+Griewank
+Rosenbrock
+Rastrigina
+Sphere(De song)
+Schwefel
+Levy
+Zakharov
+Michalewichz
