@@ -25,12 +25,13 @@ def FullFunction(function, detail):
 
 def Plot(id, function, detail, algorithm, samples):
     name = str(id) + ': ' + type(function).__name__ + " (" + algorithm.__name__ + ")"
+    print(name, ":\t\t\tComputing...")
     fig = plt.figure(name)
     fig.suptitle(name)
     ax = fig.gca(projection='3d')
 
     # Make data.
-    search = [algorithm(function) for x in range(0, samples)]
+    search = [algorithm(function, ax) for x in range(0, samples)]
     full = FullFunction(function, detail)
 
     # Plot the surface.
@@ -38,12 +39,24 @@ def Plot(id, function, detail, algorithm, samples):
 
     smin = GraphData(sys.maxsize, sys.maxsize, sys.maxsize)
     smax = GraphData(-sys.maxsize, -sys.maxsize, -sys.maxsize)
+    points = []
     for result in search:
+        points.append(result)
         if smin.Z >= result.Z:
             smin = result
         if smax.Z < result.Z:
             smax = result
-        ax.scatter(result.X, result.Y, result.Z, c="#000000")
+
+    for point in points:
+        color = "#000000"
+        alpha = 0.8
+        if point.Z == smax.Z:
+            color = "#0000FF"
+            alpha = 1.0
+        if point.Z == smin.Z:
+            color = "#FF0000"
+            alpha = 1.0
+        ax.scatter(point.X, point.Y, point.Z, c=color, alpha=alpha)
 
     print(name, ":\t\t\tMinimum [", smin.X, ", ", smin.Y, "] = ", smin.Z)
     print(name, ":\t\t\tMaximum [", smax.X, ", ", smax.Y, "] = ", smax.Z)

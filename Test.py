@@ -3,13 +3,15 @@ import sys
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
-from Algorithms import BlindSearch
+from multiprocessing import Process
+
+from Algorithms import BlindSearch, HillClimb
 from Functions import DeSong, Ackleyr, Griewank, Rosenbrock, Rastrigin, Schwefel, Zakharov, Michalewicz, Levy, Cos
 from Utils import Plot
 
 functions = [
     DeSong(),
-    Ackleyr().SetRange(-5, 5),
+    Ackleyr(),#.SetRange(-5, 5),
     Griewank().SetRange(-5, 5),
     Rosenbrock().SetRange(-10, 10),
     Rastrigin(),
@@ -21,7 +23,9 @@ functions = [
 ]
 
 for i, f in enumerate(functions):
-    Plot(i+1, f, 1000, BlindSearch, 100)
+    #Plot(i+1, f, 1000, BlindSearch, 100)
+    Plot(i + 1, f, 1000, HillClimb, 100)
+    #plt.show()
 
 plt.show()
 

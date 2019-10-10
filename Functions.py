@@ -31,7 +31,7 @@ class Ackleyr(BaseFunction):
         self.Range = [-32.768, 32.768]
         self.A = 20
         self.B = 0.2
-        self.C = 2 * np.pi
+        self.C = 0.5  # 2 * np.pi
 
     def Value(s, x):
         sumA = sum([pow(x, 2) for x in x]) / len(x)
