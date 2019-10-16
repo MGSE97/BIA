@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from matplotlib.animation import FuncAnimation
 
 class GraphData:
     def __init__(self, x, y, z):
@@ -22,6 +23,11 @@ def FullFunction(function, detail):
 
     return GraphData(x, y, z)
 
+def UpdatePlot(frame, algorithm, function, ax, search):
+    search.append(algorithm(function, ax))
+
+    #return [ax.zaxis, ax.xaxis, ax.yaxis]
+
 
 def Plot(id, function, detail, algorithm, samples):
     name = str(id) + ': ' + type(function).__name__ + " (" + algorithm.__name__ + ")"
@@ -29,13 +35,17 @@ def Plot(id, function, detail, algorithm, samples):
     fig = plt.figure(name)
     fig.suptitle(name)
     ax = fig.gca(projection='3d')
-
-    # Make data.
-    search = [algorithm(function, ax) for x in range(0, samples)]
-    full = FullFunction(function, detail)
+    fig.canvas.draw_idle()
 
     # Plot the surface.
+    full = FullFunction(function, detail)
     surf = ax.plot_surface(full.X, full.Y, full.Z, cmap=cm.coolwarm, linewidth=0, antialiased=True, alpha=0.5)
+    plt.pause(0.001)
+
+    # Make data.
+    #search = []
+    #FuncAnimation(fig, UpdatePlot, fargs=[algorithm, function, ax, search], interval=100, repeat=False, frames=np.linspace(0, samples))
+    search = [algorithm(function, fig, ax) for x in range(0, samples)]
 
     smin = GraphData(sys.maxsize, sys.maxsize, sys.maxsize)
     smax = GraphData(-sys.maxsize, -sys.maxsize, -sys.maxsize)
@@ -49,7 +59,7 @@ def Plot(id, function, detail, algorithm, samples):
 
     for point in points:
         color = "#000000"
-        alpha = 0.8
+        alpha = 0.6
         if point.Z == smax.Z:
             color = "#0000FF"
             alpha = 1.0
