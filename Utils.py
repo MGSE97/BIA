@@ -1,5 +1,7 @@
+import random
 import sys
 
+import numpy
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -7,11 +9,7 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.animation import FuncAnimation
 
-class GraphData:
-    def __init__(self, x, y, z):
-        self.X = x
-        self.Y = y
-        self.Z = z
+from Models import GraphData, Traveler, City
 
 
 def FullFunction(function, detail):
@@ -78,3 +76,97 @@ def Plot(id, function, detail, algorithm, samples):
 
     # Add a color bar which maps values to colors.
     fig.colorbar(surf, shrink=0.5, aspect=5)
+
+
+travelers = ["Horo", "Leny", "Carl", "Lawrence", "Chloe", "Nora", "Ruby"]
+
+
+def send_traveler(cities):
+    traveler = Traveler(
+        travelers[random.randrange(0, len(travelers))],
+        cities[random.randrange(0, len(cities))]
+    )
+
+    traveler.route(cities)
+
+    return traveler
+
+
+def send_population(population, cities, count):
+    traveler = None
+    for i in range(0, count):
+        t = send_traveler(cities)
+        if traveler is None or t.Distance < traveler.Distance:
+            traveler = t
+    return traveler
+
+def plot_cities():
+    cities = [City(str(chr(65+i)), random.randrange(0, 100), random.randrange(0, 100)) for i in range(0, 20)]
+    fig = plt.figure('Cities')
+    fig.suptitle('Cities')
+    ax = fig.gca()
+    fig.canvas.draw_idle()
+
+    for c in cities:
+        c.updateDistances(cities)
+        ax.plot(c.X, c.Y, marker='v')
+        ax.annotate(c.Name, (c.X-len(c.Name)/2-0.25, c.Y+2))
+        print(str(c)+'\n\n')
+
+    a = cities[random.randrange(0, 10)]
+    b = cities[random.randrange(10, 20)]
+
+    print(str(a) + '\n' + str(b) + '\n = ' + str(a.getDistance(b)))
+
+    plt.pause(0.00001)
+
+    fstats = plt.figure('Travelers')
+    fstats.suptitle('Best routes')
+    fax = fstats.gca()
+    fax.set_xlim(0, 1000)
+    fax.set_ylim(400, 1200)
+    fstats.canvas.draw_idle()
+
+    distances = []
+    populations = []
+    currentd = []
+    sc, = fax.plot(currentd, populations, alpha=0.25)
+    s, = fax.plot(distances, populations)
+    best = None
+
+    population = []
+    t, = ax.plot([], [], alpha=0.25)
+    b, = ax.plot([], [], alpha=0.5)
+    for i in range(0, 1000):
+        # Get best route from population
+        traveler = send_population(population, cities, 10)
+        print(traveler.str())
+
+        # Update global best
+        if best is None or best.Distance >= traveler.Distance:
+            fig.suptitle(traveler.str())
+            best = traveler
+            plot_path(b, traveler)
+
+        # Draw stats
+        currentd.append(traveler.Distance)
+        populations.append(i)
+        distances.append(best.Distance)
+        s.set_xdata(populations)
+        s.set_ydata(distances)
+        sc.set_xdata(populations)
+        sc.set_ydata(currentd)
+
+        # Draw route
+        plot_path(t, traveler)
+        plt.pause(0.00001)
+
+    plt.show()
+
+
+def plot_path(t, traveler):
+    tx = [city.X for city, distance in traveler.Route]
+    ty = [city.Y for city, distance in traveler.Route]
+    t.set_xdata(tx)
+    t.set_ydata(ty)
+

@@ -9,3 +9,11 @@ Schwefel
 Levy
 Zakharov
 Michalewichz
+
+20 měst(x,y) 2D
+generovat matici sousednosti
+vyslat jedince N každou iteraci
+vybrat náhodně rodiče pro jedince
+vytvořit křížence (1-2 bodové křížení)
+zvolit náhodně začátek a konec křížení
+z oblasti vytvořit x1, x3, x1 ! zachovat posloupnost !
