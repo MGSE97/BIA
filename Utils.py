@@ -9,6 +9,8 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.animation import FuncAnimation
 
+from copy import deepcopy
+
 from Models import GraphData, Traveler, City
 
 
@@ -79,29 +81,90 @@ def Plot(id, function, detail, algorithm, samples):
 
 
 travelers = ["Horo", "Leny", "Carl", "Lawrence", "Chloe", "Nora", "Ruby"]
+i = 0
 
 
-def send_traveler(cities):
+def create_traveler(cities):
+    global i
+    i += 1
     traveler = Traveler(
-        travelers[random.randrange(0, len(travelers))],
+        travelers[random.randrange(0, len(travelers))] + ' ' + str(i),
         cities[random.randrange(0, len(cities))]
     )
 
-    traveler.route(cities)
+    traveler.discover(cities)
 
     return traveler
 
 
-def send_population(population, cities, count):
+def create_population(population, cities, count):
     traveler = None
     for i in range(0, count):
-        t = send_traveler(cities)
+        t = create_traveler(cities)
+        population.append(t)
         if traveler is None or t.Distance < traveler.Distance:
             traveler = t
     return traveler
 
+
+def evolve_population(population):
+    global i
+    # Cross
+    new_population = []
+
+    roulette = random.random()
+    while len(new_population) < len(population):
+        a = None
+        for traveler in population:
+            if traveler.Probability < roulette:
+                if a is None:
+                    a = traveler
+                else:
+                    if a is not None and traveler is not None:
+                        c = a.cross(traveler, travelers, i)
+                        if c is not None:
+                            for child in c:
+                                if len(new_population) < len(population):
+                                    i += 1
+                                    new_population.append(child)
+                    a = None
+                    if len(new_population) >= len(population):
+                        break
+        roulette += 0.1
+
+    '''if len(new_population) < len(population):
+        veterans = random.sample(population, k=len(population)-len(new_population)*2)
+        for v in veterans:
+            new_population.append(v)'''
+
+    # Mutate
+    new_population[random.randrange(0, len(new_population))].mutate()
+
+    return new_population
+
+
+def eval_population(population):
+    best = None
+    total_distance = 0.0
+    # Get Best
+    for traveler in population:
+        if best is None or traveler.Distance < best.Distance:
+            best = traveler
+        total_distance += traveler.Distance
+
+    # Set probability to cross
+    total_distance /= len(population)
+
+    for traveler in population:
+        traveler.Probability = traveler.Distance / total_distance
+
+    return best
+
+
 def plot_cities():
-    cities = [City(str(chr(65+i)), random.randrange(0, 100), random.randrange(0, 100)) for i in range(0, 20)]
+    count = 20
+    # Create cities
+    cities = [City(str(chr(65+i)), random.randrange(0, 100), random.randrange(0, 100)) for i in range(0, count)]
     fig = plt.figure('Cities')
     fig.suptitle('Cities')
     ax = fig.gca()
@@ -113,53 +176,61 @@ def plot_cities():
         ax.annotate(c.Name, (c.X-len(c.Name)/2-0.25, c.Y+2))
         print(str(c)+'\n\n')
 
-    a = cities[random.randrange(0, 10)]
-    b = cities[random.randrange(10, 20)]
-
-    print(str(a) + '\n' + str(b) + '\n = ' + str(a.getDistance(b)))
-
     plt.pause(0.00001)
 
     fstats = plt.figure('Travelers')
     fstats.suptitle('Best routes')
     fax = fstats.gca()
     fax.set_xlim(0, 1000)
-    fax.set_ylim(400, 1200)
+    fax.set_ylim(0, 1200)
     fstats.canvas.draw_idle()
 
     distances = []
     populations = []
-    currentd = []
-    sc, = fax.plot(currentd, populations, alpha=0.25)
-    s, = fax.plot(distances, populations)
-    best = None
+    current_distance = []
+    max_distance = 0
+    sc, = fax.plot(current_distance, populations, alpha=0.25)
+    sb, = fax.plot(distances, populations)
 
     population = []
     t, = ax.plot([], [], alpha=0.25)
     b, = ax.plot([], [], alpha=0.5)
-    for i in range(0, 1000):
+
+    # Create population
+    best = deepcopy(create_population(population, cities, count))
+
+    p = 1
+    while True:
         # Get best route from population
-        traveler = send_population(population, cities, 10)
+        traveler = eval_population(population)
         print(traveler.str())
 
+        if traveler.Distance > max_distance:
+            max_distance = traveler.Distance
         # Update global best
-        if best is None or best.Distance >= traveler.Distance:
+        if traveler.Distance < best.Distance:
             fig.suptitle(traveler.str())
-            best = traveler
+            best = deepcopy(traveler)
             plot_path(b, traveler)
 
         # Draw stats
-        currentd.append(traveler.Distance)
-        populations.append(i)
+        current_distance.append(traveler.Distance)
+        populations.append(p)
         distances.append(best.Distance)
-        s.set_xdata(populations)
-        s.set_ydata(distances)
+        sb.set_xdata(populations)
+        sb.set_ydata(distances)
         sc.set_xdata(populations)
-        sc.set_ydata(currentd)
+        sc.set_ydata(current_distance)
 
         # Draw route
         plot_path(t, traveler)
-        plt.pause(0.00001)
+        plt.pause(0.001)
+
+        # Evolve population
+        population = evolve_population(population)
+        p += 1
+        fax.set_xlim(0, p)
+        fax.set_ylim(0, max_distance)
 
     plt.show()
 

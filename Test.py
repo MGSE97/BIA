@@ -9,7 +9,7 @@ import multiprocessing
 from Algorithms import BlindSearch, HillClimb, Annealing
 from Functions import DeSong, Ackleyr, Griewank, Rosenbrock, Rastrigin, Schwefel, Zakharov, Michalewicz, Levy, Cos
 from Models import City
-from Utils import Plot, send_traveler, plot_cities
+from Utils import Plot, plot_cities
 
 
 def plot(args):
@@ -18,10 +18,6 @@ def plot(args):
     Plot(i + 1, f, 1000, Annealing, 10)
     Plot(i + 1, f, 1000, HillClimb, 10)
     plt.show()
-
-
-def cities(args):
-    i, f = args
 
 
 def plot_functions():
