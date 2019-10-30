@@ -1,3 +1,4 @@
+import multiprocessing
 import random
 import sys
 
@@ -5,11 +6,14 @@ import numpy
 import numpy as np
 
 import matplotlib.pyplot as plt
+import time
+
+import datetime
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.animation import FuncAnimation
 
-from copy import deepcopy
+from copy import deepcopy, copy
 
 from Models import GraphData, Traveler, City
 
@@ -80,7 +84,7 @@ def Plot(id, function, detail, algorithm, samples):
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
-travelers = ["Horo", "Leny", "Carl", "Lawrence", "Chloe", "Nora", "Ruby"]
+travelers = ["Horo", "Leny", "Carl", "Lawrence", "Chloe", "Nora", "Ruby", "Holo", "Gándhí", "Columbus", "Shiba", "Lucy"]
 i = 0
 
 
@@ -112,25 +116,31 @@ def evolve_population(population):
     # Cross
     new_population = []
 
-    roulette = random.random()
+    #roulette = round(random.random(), 2)
     while len(new_population) < len(population):
-        a = None
-        for traveler in population:
-            if traveler.Probability < roulette:
-                if a is None:
-                    a = traveler
-                else:
-                    if a is not None and traveler is not None:
-                        c = a.cross(traveler, travelers, i)
-                        if c is not None:
-                            for child in c:
-                                if len(new_population) < len(population):
-                                    i += 1
-                                    new_population.append(child)
-                    a = None
-                    if len(new_population) >= len(population):
-                        break
-        roulette += 0.1
+        t = random.sample(population, k=2)
+        a = t[0]
+        b = t[1]
+        #if b.Probability < roulette or a.Probability < roulette:
+            #roulette = round(random.random(), 2)
+        c = a.cross(b, travelers, i)
+        if c is not None:
+            for ci, child in enumerate(c):
+                if len(new_population) < len(population):
+                    if child.Distance < a.Distance or child.Distance < b.Distance:
+                        i += 1
+                        new_population.append(child)
+                    elif ci == 0:
+                        new_population.append(a)
+                    elif ci == 1:
+                        new_population.append(b)
+        else:
+            new_population.append(a)
+            new_population.append(b)
+
+        if len(new_population) >= len(population):
+            break
+        #roulette += 0.5
 
     '''if len(new_population) < len(population):
         veterans = random.sample(population, k=len(population)-len(new_population)*2)
@@ -138,6 +148,7 @@ def evolve_population(population):
             new_population.append(v)'''
 
     # Mutate
+    #for m in range(0, int(len(new_population)/10)):
     new_population[random.randrange(0, len(new_population))].mutate()
 
     return new_population
@@ -150,13 +161,13 @@ def eval_population(population):
     for traveler in population:
         if best is None or traveler.Distance < best.Distance:
             best = traveler
-        total_distance += traveler.Distance
+        #total_distance += traveler.Distance
 
     # Set probability to cross
-    total_distance /= len(population)
+    #total_distance /= len(population)
 
-    for traveler in population:
-        traveler.Probability = traveler.Distance / total_distance
+    #for traveler in population:
+        #traveler.Probability = traveler.Distance / total_distance
 
     return best
 
@@ -197,13 +208,14 @@ def plot_cities():
     b, = ax.plot([], [], alpha=0.5)
 
     # Create population
-    best = deepcopy(create_population(population, cities, count))
+    best = deepcopy(create_population(population, cities, count*2))
 
-    p = 1
+    p = 0
+    sp = 10
     while True:
         # Get best route from population
         traveler = eval_population(population)
-        print(traveler.str())
+        #print(traveler.str())
 
         if traveler.Distance > max_distance:
             max_distance = traveler.Distance
@@ -213,24 +225,29 @@ def plot_cities():
             best = deepcopy(traveler)
             plot_path(b, traveler)
 
+
         # Draw stats
         current_distance.append(traveler.Distance)
         populations.append(p)
         distances.append(best.Distance)
-        sb.set_xdata(populations)
-        sb.set_ydata(distances)
-        sc.set_xdata(populations)
-        sc.set_ydata(current_distance)
+        if p % sp == 1:
+            sb.set_xdata(populations)
+            sb.set_ydata(distances)
+            sc.set_xdata(populations)
+            sc.set_ydata(current_distance)
 
-        # Draw route
-        plot_path(t, traveler)
-        plt.pause(0.001)
+            # Draw route
+            plot_path(t, traveler)
+            plt.pause(0.0000001)
 
-        # Evolve population
+            # Evolve population
+            fax.set_xlim(0, p)
+            fax.set_ylim(0, max_distance)
+            if p > 1000:
+                sp = 50
+
         population = evolve_population(population)
         p += 1
-        fax.set_xlim(0, p)
-        fax.set_ylim(0, max_distance)
 
     plt.show()
 
@@ -240,4 +257,49 @@ def plot_path(t, traveler):
     ty = [city.Y for city, distance in traveler.Route]
     t.set_xdata(tx)
     t.set_ydata(ty)
+
+
+def permute(arr, start=0):
+    l = len(arr)
+
+    if start < l:
+        for i in range(start, l):
+            arr[start], arr[i] = arr[i], arr[start]
+
+            permute(arr, start+1)
+
+            arr[start], arr[i] = arr[i], arr[start]
+
+    elif l < 5:
+        print(''.join(arr))
+
+
+def plot_permutations():
+    fig = plt.figure('Permutations')
+    fig.suptitle('Permutations')
+    ax = fig.gca()
+    fig.canvas.draw_idle()
+
+    times = []
+    ranges = []
+    items = (1, 10)
+    g, = ax.plot([], [])
+    ax.set_xlim(items[0], items[1])
+
+    for c in range(items[0], items[1]+1):
+        # Create cities
+        cities = list([str(chr(65 + i)) for i in range(0, c)])
+        s = time.perf_counter()
+        permute(cities)
+        e = time.perf_counter()
+        times.append(e - s)
+        ranges.append(c)
+        print('%2d: %s' % (c, datetime.timedelta(seconds=(e-s))))
+        g.set_xdata(ranges)
+        g.set_ydata(times)
+        ax.set_ylim(0, max(times))
+        plt.pause(0.1)
+
+    plt.show()
+
 

@@ -126,7 +126,6 @@ class Traveler:
         cities = [[], []]
 
         # Cross parents
-        # ToDo validate unique cities
         for i in range(0, begin):
             cities[0].append(self.Route[i][0])
             cities[1].append(parent.Route[i][0])

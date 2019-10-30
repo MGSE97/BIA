@@ -9,7 +9,7 @@ import multiprocessing
 from Algorithms import BlindSearch, HillClimb, Annealing
 from Functions import DeSong, Ackleyr, Griewank, Rosenbrock, Rastrigin, Schwefel, Zakharov, Michalewicz, Levy, Cos
 from Models import City
-from Utils import Plot, plot_cities
+from Utils import Plot, plot_cities, plot_permutations
 
 
 def plot(args):
@@ -40,7 +40,8 @@ def plot_functions():
 
 def main():
     # plot_functions()
-    plot_cities()
+    # plot_cities()
+    plot_permutations()
 
 
 if __name__ == '__main__':

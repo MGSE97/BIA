@@ -17,3 +17,8 @@ vybrat náhodně rodiče pro jedince
 vytvořit křížence (1-2 bodové křížení)
 zvolit náhodně začátek a konec křížení
 z oblasti vytvořit x1, x3, x1 ! zachovat posloupnost !
+
+
+vypsat všechny kompinace měst (permutace 3-9)
+měřit čas (výstup na graf)
+implementace bez knihoven
