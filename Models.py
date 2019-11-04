@@ -3,29 +3,59 @@ import random
 import numpy
 
 
-class GraphData:
-    def __init__(self, x, y, z):
-        self.X = x
-        self.Y = y
-        self.Z = z
-
-
 class Vector:
-    def __init__(self, x, y):
-        self.X = x
-        self.Y = y
+    def __init__(self, data=[]):
+        self.Data = data
+        self.D = len(data)
 
     def __sub__(self, o):
-        return Vector(self.X - o.X, self.Y - o.Y)
+        return self.op(o, lambda a, b: a - b)
 
     def __add__(self, o):
-        return Vector(self.X + o.X, self.Y + o.Y)
+        return self.op(o, lambda a, b: a + b)
+
+    def __mul__(self, o):
+        return self.op(o, lambda a, b: a * b)
+
+    def __rmul__(self, o):
+        return self.op(o, lambda a, b: a * b)
+
+    def op(self, o, op):
+        len = self.D if o.D >= self.D else o.D
+        r = []
+        for i in range(0, len):
+            r.append(op(self.Data[i], o.Data[i]))
+
+        return Vector(r)
+
+    #def append(self, x):
+     #   self.Data.append(x)
+      #  self.D += 1
 
     def toArray(self):
-        return [self.X, self.Y]
+        return self.Data
 
     def __str__(self):
-        return str(self.X) + ', ' + str(self.Y)
+        return', '.join([str(x) for x in self.Data])
+
+
+class GraphData(Vector):
+    def __init__(self, *args):
+        super().__init__()
+        self.X = 0
+        self.Y = 0
+        self.Z = 0
+        self.set(*args)
+
+    def set(self, *args):
+        self.Data = args[0] if len(args) == 1 else args
+        self.D = len(self.Data)
+        if len(self.Data) > 0:
+            self.X = self.Data[0]
+        if len(self.Data) > 1:
+            self.Y = self.Data[1]
+        if len(self.Data) > 2:
+            self.Z = self.Data[2]
 
 
 class City(Vector):
