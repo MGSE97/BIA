@@ -28,12 +28,12 @@ def cross(function, x, y):
     # Set values
     z = []
     for i, ri in enumerate(rs):
-        if ri < CR or i == r:
+        if ri <= CR or i == r:
             z.append(y.Data[i])
         else:
             z.append(x.Data[i])
 
-    z.append(function.Value(x.Data))
+    z.append(function.Value(z))
     return GraphData(z)
 
 
@@ -43,15 +43,19 @@ def evaluate(a, b):
 
 def fix_mutation(function, y):
     r = []
+    diff = function.Range[1] - function.Range[0]
     for x in y.Data:
         if function.Range[0] <= x <= function.Range[1]:
             r.append(x)
         else:
-            r.append(np.random.uniform(function.Range[0], function.Range[1], 1)[0])
+            r.append(x % diff)
+    r.pop()
+    r.append(function.Value(r))
     return GraphData(r)
 
 
 def plot_diff_evolution(function, detail=1000):
+    random.seed()
     plt.ion()
     args = []
     for d in range(0, D-1):
@@ -76,21 +80,20 @@ def plot_diff_evolution(function, detail=1000):
     plt.pause(0.001)
 
     points = []
-    for point in population:
-        points.append(ax.scatter(point.X, point.Y, point.Z, c='black', alpha=0.5))
-
     new_population = []
-    p = 0
+    i = 0
     while True:
-        p += 1
-        print(p, len(population))
-        plt.pause(0.001)
+        i += 1
+        print(i)#, len(population))
+        plt.pause(0.01)
         # Compute
         for x in population:
             # Get 3 from population
-            samples = random.sample(population, k=3)
+            a, b, c = random.sample(population, k=3)
+            while x == a or x == b or x == c:
+                [a, b, c] = random.sample(population, k=3)
             # Compute temp vector
-            y = mutate(samples[0], samples[1], samples[2])
+            y = mutate(a, b, c)
             y = fix_mutation(function, y)
             # Cross selected
             y = cross(function, x, y)
@@ -101,16 +104,15 @@ def plot_diff_evolution(function, detail=1000):
                 new_population.append(x)
 
         # Draw population
-        for i, point in enumerate(population):
-            #points[i].set_offsets(np.c_[point.X, point.Y, point.Z])
-            #points[i].set_value(point.Z)
-            #points[i].set_xdata([point.X])
-            #points[i].set_ydata([point.Y])
-            #points[i].set_zdata([point.Z])
-            ax.scatter(point.X, point.Y, point.Z, c='black', alpha=0.5)
+
+        for point in points:
+            point.remove()
+        points.clear()
+
+        px, py, pz = [[p.X for p in population], [p.Y for p in population], [p.Z for p in population]]
+        points.append(ax.plot(px, py, pz, 'ro', color='black')[0])
 
         population.clear()
         population.extend(new_population)
         new_population.clear()
-
     plt.show()
