@@ -22,3 +22,7 @@ z oblasti vytvořit x1, x3, x1 ! zachovat posloupnost !
 vypsat všechny kompinace měst (permutace 3-9)
 měřit čas (výstup na graf)
 implementace bez knihoven
+
+DE - jakákoliv implementace
+
+SOMA - all to one
