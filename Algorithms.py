@@ -50,6 +50,33 @@ def HillClimb(function, fig, ax):
     return GraphData(x, y, z)
 
 
+def HillClimbSingle(function, point):
+    w = (function.Range[1] - function.Range[0]) * 0.01
+    s = w * 0.1
+    x = point.X
+    y = point.Y
+    z = point.Z
+    t = 10
+    while t > 0:
+        for sx in np.arange(x-w, x+w, s):
+            for sy in np.arange(y-w, y+w, s):
+                if sx < function.Range[0] or sx > function.Range[1]:
+                    continue
+                if sy < function.Range[0] or sy > function.Range[1]:
+                    continue
+                if x + s >= sx >= x - s and y + s >= sy >= y - s:
+                    continue
+                sz = function.Value([sx, sy])
+                if sz < z:
+                    t = 10
+                    z = sz
+                    x = sx
+                    y = sy
+        t -= 1
+
+    return GraphData(x, y, z)
+
+
 def Annealing(function, fig, ax):
     w = (function.Range[1] - function.Range[0]) * 0.01
     s = w * 0.1
@@ -96,4 +123,40 @@ def Annealing(function, fig, ax):
 
     return GraphData(x, y, z)
 
+
+def AnnealingSingle(function, point):
+    w = (function.Range[1] - function.Range[0]) * 0.01
+    s = w * 0.1
+    x = point.X
+    y = point.Y
+    z = point.Z
+    temperature = 200.0
+    heating = 0.9
+    while temperature > 0.1:
+        i = 10
+        while i > 0:
+            sx = random.uniform(x-w, x+w)
+            sy = random.uniform(y-w, y+w)
+            if sx < function.Range[0] or sx > function.Range[1]:
+                continue
+            if sy < function.Range[0] or sy > function.Range[1]:
+                continue
+            if x + s >= sx >= x - s and y + s >= sy >= y - s:
+                continue
+            sz = function.Value([sx, sy])
+            if sz < z:
+                z = sz
+                x = sx
+                y = sy
+            else:
+                probability = np.exp(-(sz - z) / temperature)
+                if random.uniform(0, 1.0) < probability:
+                    z = sz
+                    x = sx
+                    y = sy
+            i -= 1
+
+        temperature *= heating
+
+    return GraphData(x, y, z)
 

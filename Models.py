@@ -20,11 +20,19 @@ class Vector:
     def __rmul__(self, o):
         return self.op(o, lambda a, b: a * b)
 
+    def __eq__(self, o):
+        return self.op(o, lambda a, b: a == b)
+
     def op(self, o, op):
-        len = self.D if o.D >= self.D else o.D
         r = []
-        for i in range(0, len):
-            r.append(op(self.Data[i], o.Data[i]))
+        if not issubclass(type(o), Vector):
+            len = self.D
+            for i in range(0, len):
+                r.append(op(self.Data[i], o))
+        else:
+            len = self.D if o.D >= self.D else o.D
+            for i in range(0, len):
+                r.append(op(self.Data[i], o.Data[i]))
 
         return Vector(r)
 
@@ -32,12 +40,19 @@ class Vector:
      #   self.Data.append(x)
       #  self.D += 1
 
+    def append(self, *data):
+        self.Data.extend(data)
+        self.D = len(data)
+        return self
+
+    def last(self):
+        return self.Data[self.D-1]
+
     def toArray(self):
         return self.Data
 
     def __str__(self):
         return', '.join([str(x) for x in self.Data])
-
 
 class GraphData(Vector):
     def __init__(self, *args):
@@ -57,6 +72,15 @@ class GraphData(Vector):
         if len(self.Data) > 2:
             self.Z = self.Data[2]
 
+    def append(self, *data):
+        size = self.D
+        super().__init__().append(data)
+        if size <= 1 and len(self.Data) > 0:
+            self.X = self.Data[0]
+        if size <= 2 and len(self.Data) > 1:
+            self.Y = self.Data[1]
+        if size <= 3 and len(self.Data) > 2:
+            self.Z = self.Data[2]
 
 class City(Vector):
     def __init__(self, name, x, y):

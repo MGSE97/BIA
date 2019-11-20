@@ -4,18 +4,20 @@ import random
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
+from Algorithms import AnnealingSingle, HillClimbSingle
+
 Axes3D = Axes3D  # pycharm auto import
-from Models import GraphData
+from Models import GraphData, Vector
 from Utils import FullFunction
 
 NP = 20
 D = 3
-PRT = 1
+PATH_LENGTH = 5
+STEP = 0.11
+PRT = 0.5
 
 
 def plot_soma(function, detail=1000):
-    MIN_DIV = (function.Range[1] - function.Range[0]) / detail
-
     # Setup
     random.seed()
     plt.ion()
@@ -31,8 +33,8 @@ def plot_soma(function, detail=1000):
         p.append(function.Value(p))
         population.append(GraphData(p))
 
-    fig = plt.figure("DE")
-    fig.suptitle("DE")
+    fig = plt.figure("SOMA")
+    fig.suptitle("SOMA")
     ax = fig.gca(projection='3d')
     fig.canvas.draw_idle()
 
@@ -42,14 +44,12 @@ def plot_soma(function, detail=1000):
     plt.pause(0.001)
 
     points = []
-    new_population = []
     i = 0
     while True:
         i += 1
-        print(i)
+        print(i, len(population))
 
         # Draw population
-
         for point in points:
             point.remove()
         points.clear()
@@ -58,5 +58,66 @@ def plot_soma(function, detail=1000):
         points.append(ax.plot(px, py, pz, 'ro', color='black')[0])
         plt.pause(0.01)
 
+        leader = find_leader(population)
+        leader = move_leader(function, leader)
+
+        population = move_others(function, population, leader, STEP)
+
     plt.show()
+
+
+def find_leader(population):
+    best = population[0]
+    for member in population:
+        if member.last() < best.last():
+            best = member
+
+    return best
+
+
+def move_leader(function, leader):
+    #return AnnealingSingle(function, leader)
+    return HillClimbSingle(function, leader)
+
+
+def move_others(function, population, leader, step):
+    newPopulation = []
+    newPopulation.append(leader)
+
+    leaderIndex = population.index(leader)
+    for i, member in enumerate(population):
+        if i == leaderIndex:
+            continue
+
+        pertubatingVector = []
+        for d in range(0, D - 1):
+            r = random.random()
+            pertubatingVector.append(0 if r <= PRT else 1)
+
+        pertubatingVector = Vector(pertubatingVector)
+
+        newMember = member
+        t = step
+        while t < PATH_LENGTH:
+
+            # D-1
+            vector = member + (member - leader) * t * pertubatingVector
+            data = []
+            for v in vector.Data:
+                if v < function.Range[0] or v > function.Range[1]:
+                    data.append(np.random.uniform(function.Range[0], function.Range[1], 1)[0])
+                else:
+                    data.append(v)
+            data.append(function.Value(data))
+            vector = GraphData(data)
+
+            if vector.last() <= newMember.last():
+                newMember = vector
+
+            t += step
+
+        newPopulation.append(newMember)
+
+    return newPopulation
+
 

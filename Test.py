@@ -12,7 +12,9 @@ def main():
     #plot_permutations()
     #plot_diff_evolution(Michalewicz().SetRange(0, 4))
     #plot_diff_evolution(Rastrigin())
-    plot_soma(Michalewicz().SetRange(0, 4))
+    #plot_soma(Michalewicz().SetRange(0, 4))
+    #plot_soma(Rastrigin().SetRange(0, 4))
+    plot_soma(Cos())
 
 
 if __name__ == '__main__':
