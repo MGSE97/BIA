@@ -1,6 +1,7 @@
 from Cities import plot_cities
 from DifferentialEvolution import plot_diff_evolution
 from Functions import Levy, Cos, Michalewicz, Rastrigin
+from PSO import plot_pso
 from Permutations import plot_permutations
 from SOMA import plot_soma
 from Search import plot_functions
@@ -14,7 +15,10 @@ def main():
     #plot_diff_evolution(Rastrigin())
     #plot_soma(Michalewicz().SetRange(0, 4))
     #plot_soma(Rastrigin().SetRange(0, 4))
-    plot_soma(Cos())
+    #plot_soma(Cos())
+    #plot_pso(Michalewicz().SetRange(0, 4))
+    plot_pso(Rastrigin().SetRange(0, 4))
+    #plot_pso(Cos())
 
 
 if __name__ == '__main__':

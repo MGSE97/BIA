@@ -213,3 +213,11 @@ class Traveler:
         cities[b] = tmp
 
         self.route(cities)
+
+
+class Member(GraphData):
+    def __init__(self, args):
+        super().__init__(args)
+        self.Best = GraphData(self.Data)
+        self.Velocity = GraphData()
+
