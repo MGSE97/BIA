@@ -68,9 +68,12 @@ def plot_pso(function, detail=1000):
     plt.show()
 
 
+def vector_rand():
+    return Vector(np.random.uniform(0, 1, D-1))
+
 def move_member(m, best, step, function):
     # calc new speed
-    m.Velocity = m.Velocity + C1 * np.random.uniform() * (m.Best - m) + C2 * np.random.uniform() * (best - m)
+    m.Velocity = m.Velocity + C1 * vector_rand() * (m.Best - m) + C2 * vector_rand() * (best - m)
     m.Velocity = GraphData(m.Velocity.Data)
     # move member
     newPosition = m + step * m.Velocity

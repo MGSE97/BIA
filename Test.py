@@ -1,6 +1,6 @@
 from Cities import plot_cities
 from DifferentialEvolution import plot_diff_evolution
-from Functions import Levy, Cos, Michalewicz, Rastrigin
+from Functions import Levy, Cos, Michalewicz, Rastrigin, Ackleyr
 from PSO import plot_pso
 from Permutations import plot_permutations
 from SOMA import plot_soma
@@ -19,6 +19,7 @@ def main():
     #plot_pso(Michalewicz().SetRange(0, 4))
     plot_pso(Rastrigin().SetRange(0, 4))
     #plot_pso(Cos())
+    #plot_pso(Ackleyr())
 
 
 if __name__ == '__main__':
