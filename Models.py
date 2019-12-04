@@ -82,9 +82,9 @@ class GraphData(Vector):
         if size <= 3 and len(self.Data) > 2:
             self.Z = self.Data[2]
 
-class City(Vector):
-    def __init__(self, name, x, y):
-        super().__init__(x, y)
+class City(GraphData):
+    def __init__(self, name, args):
+        super().__init__(args)
         self.Name = name
         self.Distances = {}
 
@@ -104,6 +104,46 @@ class City(Vector):
         return self.Name + '(' + super().__str__() + ')\n\t' + \
                str.join('\n\t', [d.Name + '(' + str(d.X) + ', ' + str(d.Y) + ') ' + str(self.Distances[d]) for d in
                                  self.Distances])
+
+
+class DistanceACO:
+    def __init__(self, city, distance, pheromons):
+        self.City = city
+        self.Distance = distance
+        self.Pheromons = pheromons
+
+    def walk(self, ant):
+        self.Pheromons += 1
+        ant.visitedCity(self.City)
+
+
+class CityACO(City):
+    def updateDistances(self, cities):
+        self.Distances = dict()
+        for c in cities:
+            if c == self:
+                continue
+            self.Distances[c] = DistanceACO(numpy.linalg.norm((self - c).toArray()), 1)
+
+
+class Ant(Vector):
+    def __init__(self, name, city, cities):
+        self.Name = name
+        self.City = city
+        self.Origin = city
+        self.NewCities = list()
+        self.NewCities.append(cities)
+        self.Route = list()
+        self.Route.append((city, 0.0))
+        self.LastCity = city
+        self.Distance = 0.0
+
+    def visitedCity(self, city):
+        self.NewCities.remove(city)
+        dst = self.LastCity.Distances[city]
+        self.Route.append((city, dst.Distance))
+        self.Distance += dst.Distance
+        self.LastCity = city
 
 
 class Traveler:

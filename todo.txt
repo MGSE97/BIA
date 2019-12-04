@@ -26,3 +26,8 @@ implementace bez knihoven
 DE - jakákoliv implementace
 
 SOMA - all to one
+
+PSO
+
+ASO - vysílat mravence (pamatují si města)
+    - pokud dokonční trasu, smazat pamět

@@ -1,3 +1,4 @@
+from ACO import plot_aco
 from Cities import plot_cities
 from DifferentialEvolution import plot_diff_evolution
 from Functions import Levy, Cos, Michalewicz, Rastrigin, Ackleyr
@@ -17,10 +18,10 @@ def main():
     #plot_soma(Rastrigin().SetRange(0, 4))
     #plot_soma(Cos())
     #plot_pso(Michalewicz().SetRange(0, 4))
-    plot_pso(Rastrigin().SetRange(0, 4))
+    #plot_pso(Rastrigin().SetRange(0, 4))
     #plot_pso(Cos())
     #plot_pso(Ackleyr())
-
+    plot_aco()
 
 if __name__ == '__main__':
     main()
