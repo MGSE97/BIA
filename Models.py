@@ -1,4 +1,5 @@
 import random
+from copy import deepcopy
 
 import numpy
 
@@ -107,23 +108,30 @@ class City(GraphData):
 
 
 class DistanceACO:
-    def __init__(self, city, distance, pheromons):
+    def __init__(self, city, distance, visibility, pheromons):
         self.City = city
         self.Distance = distance
+        self.Visibility = visibility
         self.Pheromons = pheromons
 
-    def walk(self, ant):
-        self.Pheromons += 1
-        ant.visitedCity(self.City)
+    def walk(self):
+        self.Pheromons += 1.0/self.Distance
+        #ant.visitedCity(self.City)
 
 
 class CityACO(City):
     def updateDistances(self, cities):
-        self.Distances = dict()
+        self.Distances.clear()
         for c in cities:
-            if c == self:
+            if c.Name == self.Name:
                 continue
-            self.Distances[c] = DistanceACO(numpy.linalg.norm((self - c).toArray()), 1)
+            d = numpy.linalg.norm((self - c).toArray())
+            self.Distances[c.Name] = DistanceACO(c, d, 1.0/d, 1)
+
+    def getDistance(self, city):
+        if city.Name == self.Name:
+            return None
+        return self.Distances[city.Name]
 
 
 class Ant(Vector):
@@ -131,19 +139,29 @@ class Ant(Vector):
         self.Name = name
         self.City = city
         self.Origin = city
-        self.NewCities = list()
-        self.NewCities.append(cities)
         self.Route = list()
         self.Route.append((city, 0.0))
-        self.LastCity = city
         self.Distance = 0.0
 
     def visitedCity(self, city):
-        self.NewCities.remove(city)
-        dst = self.LastCity.Distances[city]
+        self.City.getDistance(city).walk()
+        dst = self.City.getDistance(city)
         self.Route.append((city, dst.Distance))
         self.Distance += dst.Distance
-        self.LastCity = city
+        self.City = city
+
+    def reset(self, cities):
+        self.Route.clear()
+        self.Route.append((self.City, 0.0))
+        self.Distance = 0.0
+
+    def __str__(self):
+        return self.Name + ' (' + str(self.Distance) + ' km) - ' + self.City.Name+ '\n\t' + \
+               str.join('\n\t', [c.Name + ' (' + str(d) + ')' for c, d in self.Route])
+
+    def str(self):
+        return self.Name + ' (' + str(round(self.Distance, 2)) + ' km) ' + str.join('', [c.Name for c, d in self.Route])
+
 
 
 class Traveler:
