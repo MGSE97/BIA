@@ -7,6 +7,8 @@ from PSO import plot_pso
 from Permutations import plot_permutations
 from SOMA import plot_soma
 from Search import plot_functions
+from TLBO import plot_tlbo
+
 
 def main():
     #plot_functions()
@@ -22,7 +24,9 @@ def main():
     #plot_pso(Cos())
     #plot_pso(Ackleyr())
     #plot_aco()
-    plot_fireflies(Rastrigin().SetRange(0, 4))
+    #plot_fireflies(Rastrigin().SetRange(0, 4))
+    #plot_fireflies(Ackleyr())
+    plot_tlbo(Ackleyr())
 
 if __name__ == '__main__':
     main()

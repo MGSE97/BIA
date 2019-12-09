@@ -10,6 +10,17 @@ class BaseFunction(object):
         self.Range = [rangeMin, rangeMax]
         return self
 
+    def FixRange(self, point):
+        pos = []
+        for i in range(0, len(point)):
+            if self.Range[0] > point[i]:
+                pos.append(self.Range[0])
+            elif self.Range[1] < point[i]:
+                pos.append(self.Range[1])
+            else:
+                pos.append(point[i])
+        return pos
+
     def Value(self, x):
         pass
 

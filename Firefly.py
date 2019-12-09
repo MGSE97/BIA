@@ -5,16 +5,26 @@ from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
 Axes3D = Axes3D  # pycharm auto import
-from Models import GraphData, Vector, Member
+from Models import Firefly, Vector
 from Utils import FullFunction
 
 NP = 20
 D = 3
+Alpha = 0.5
+Beta = 1.0
+Gama = 0.01
+
+
+def vector_rand():
+    return Vector(np.random.uniform(-1, 1, D-1))
+
 
 def plot_fireflies(function, detail = 1000):
     # Setup
     random.seed()
     plt.ion()
+
+    # Create population
     args = []
     step = (function.Range[1] - function.Range[0]) / 100
     for d in range(0, D - 1):
@@ -26,10 +36,10 @@ def plot_fireflies(function, detail = 1000):
         for d in range(0, D - 1):
             p.append(args[d][i])
         p.append(function.Value(p))
-        m = Member(p)
-        m.Velocity = GraphData(np.random.uniform(-1, 1, NP))
-        population.append(m)
+        f = Firefly(p)
+        population.append(f)
 
+    # Set plots
     fig = plt.figure("Firefly")
     fig.suptitle("Firefly")
     ax = fig.gca(projection='3d')
@@ -41,11 +51,11 @@ def plot_fireflies(function, detail = 1000):
     plt.pause(0.001)
 
     points = []
-    i = 0
-    best = population[0].Best
+    g = 0
+    best = population[0].copy()
     while True:
-        i += 1
-        print(i, best)
+        g += 1
+        print(g, best)
 
         # Draw population
         for point in points:
@@ -53,6 +63,16 @@ def plot_fireflies(function, detail = 1000):
         points.clear()
 
         # Move population
+        for i in population:
+            for j in population:
+                if j.brightness() < i.brightness():
+                    #move fly
+                    direction = Beta*np.exp(-Gama*i.distance(j)**2)*(j - i) + Alpha*vector_rand()
+                    firefly = function.FixRange((i + direction).Data)
+                    firefly.append(function.Value(firefly))
+                    i.set(firefly)
+                    if i.brightness() < best.brightness():
+                        best = i.copy()
 
         px, py, pz = [[p.X for p in population], [p.Y for p in population], [p.Z for p in population]]
         points.append(ax.plot(px, py, pz, 'ro', color='black', alpha=0.5)[0])

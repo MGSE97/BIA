@@ -32,6 +32,8 @@ def possibilityToVisit(ant, cities, alpha, beta):
     posibilityToVisit = []
     s = 0
     for c in cities:
+        if ant.City.Name == c.Name or ant.Origin.Name == c.Name:
+            continue
         d = ant.City.getDistance(c)
         if d is None:
             continue
@@ -39,17 +41,16 @@ def possibilityToVisit(ant, cities, alpha, beta):
         for r, t in ant.Route:
             if r.Name == c.Name:
                 v = False
+                break
         if v:
             p = d.Pheromons ** alpha * d.Visibility ** beta
             posibilityToVisit.append([c, p])
             s += p
 
-    if s is not None:
+    if s > 0:
         for i, v in enumerate(posibilityToVisit):
             posibilityToVisit[i][1] = v[1] / s + (posibilityToVisit[i - 1][1] if i > 0 else 0)
-
-
-    #posibilityToVisit = [(c, p / s + (posibilityToVisit[i - 1][1] if i > 0 else 0)) for i, c, p in enumerate(posibilityToVisit)]
+            #posibilityToVisit[i][1] = v[1] / s
 
     return posibilityToVisit
 

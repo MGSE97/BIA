@@ -52,6 +52,9 @@ class Vector:
     def toArray(self):
         return self.Data
 
+    def copy(self):
+        return Vector(self.Data)
+
     def __str__(self):
         return', '.join([str(x) for x in self.Data])
 
@@ -75,13 +78,19 @@ class GraphData(Vector):
 
     def append(self, *data):
         size = self.D
-        super().__init__().append(data)
+        super().append(data)
         if size <= 1 and len(self.Data) > 0:
             self.X = self.Data[0]
         if size <= 2 and len(self.Data) > 1:
             self.Y = self.Data[1]
         if size <= 3 and len(self.Data) > 2:
             self.Z = self.Data[2]
+
+    def __eq__(self, o):
+        return super().__eq__(o)
+
+    def copy(self):
+        return GraphData(self.Data)
 
 class City(GraphData):
     def __init__(self, name, args):
@@ -279,3 +288,17 @@ class Member(GraphData):
         self.Best = GraphData(self.Data)
         self.Velocity = GraphData()
 
+
+class Firefly(GraphData):
+    def __init__(self, args):
+        super().__init__(args)
+
+    def brightness(self):
+        return self.Data[self.D-1]
+
+    def distance(self, fly):
+        return numpy.linalg.norm((self - fly).toArray())
+
+
+    def copy(self):
+        return Firefly(self.Data)
