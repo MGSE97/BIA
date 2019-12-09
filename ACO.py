@@ -111,7 +111,6 @@ def plot_aco():
         # move ants
         c = len(cities)
         while c > 0:
-            print('c', c)
             for ant in ants:
                 p = random.random()
                 possibilities = possibilityToVisit(ant, cities, Alpha, Beta)
