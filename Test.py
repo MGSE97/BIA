@@ -25,8 +25,9 @@ def main():
     #plot_pso(Ackleyr())
     #plot_aco()
     #plot_fireflies(Rastrigin().SetRange(0, 4))
-    #plot_fireflies(Ackleyr())
-    plot_tlbo(Ackleyr())
+    plot_fireflies(Ackleyr())
+    #plot_fireflies(Cos())
+    #plot_tlbo(Ackleyr())
 
 if __name__ == '__main__':
     main()

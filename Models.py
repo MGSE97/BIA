@@ -22,7 +22,12 @@ class Vector:
         return self.op(o, lambda a, b: a * b)
 
     def __eq__(self, o):
-        return self.op(o, lambda a, b: a == b)
+        x = True
+        for v in self.op(o, lambda a, b: a == b).Data:
+            if not v:
+                x = False
+                break
+        return x
 
     def op(self, o, op):
         r = []
@@ -299,6 +304,8 @@ class Firefly(GraphData):
     def distance(self, fly):
         return numpy.linalg.norm((self - fly).toArray())
 
+    def __eq__(self, other):
+        return super().__eq__(other)
 
     def copy(self):
         return Firefly(self.Data)

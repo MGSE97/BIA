@@ -12,7 +12,9 @@ NP = 20
 D = 3
 Alpha = 0.5
 Beta = 1.0
-Gama = 0.01
+Gama = 0.2
+Gama2 = 0.01
+Omega = 1.0
 
 
 def vector_rand():
@@ -62,17 +64,30 @@ def plot_fireflies(function, detail = 1000):
             point.remove()
         points.clear()
 
+        # Move best
+        direction = function.FixRange((best + Alpha*vector_rand()).Data)
+        direction.append(function.Value(direction))
+        best.set(direction)
+
         # Move population
         for i in population:
+            if i == best:
+                continue
+
             for j in population:
                 if j.brightness() < i.brightness():
                     #move fly
-                    direction = Beta*np.exp(-Gama*i.distance(j)**2)*(j - i) + Alpha*vector_rand()
+                    #direction = Beta * np.exp(-Gama2 * i.distance(j)**2) * (j - i) + Alpha * vector_rand()
+                    #direction = Beta*np.exp(-Gama*i.distance(j))*(j - i) + Alpha*vector_rand()
+                    direction = Beta * (1.0/(Omega + i.distance(j))) * (j - i) + Alpha * vector_rand()
                     firefly = function.FixRange((i + direction).Data)
                     firefly.append(function.Value(firefly))
                     i.set(firefly)
-                    if i.brightness() < best.brightness():
-                        best = i.copy()
+
+        # Find Best
+        for i in population:
+            if i.brightness() < best.brightness():
+                best = i.copy()
 
         px, py, pz = [[p.X for p in population], [p.Y for p in population], [p.Z for p in population]]
         points.append(ax.plot(px, py, pz, 'ro', color='black', alpha=0.5)[0])
